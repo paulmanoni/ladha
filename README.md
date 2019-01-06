@@ -32,6 +32,6 @@ npm install
 ![Ladha Screenshot](/screenshot.png?raw=true "Ladha Screenshot")
 
 ## Todos
-- [] Fix auto update bug in songlist and sidebar
-- [] Add playlists functionality
-- [] Make outer shell and app icons dynamic based on platform
+-[] Fix auto update bug in songlist and sidebar
+-[] Add playlists functionality
+-[] Make outer shell and app icons dynamic based on platform
