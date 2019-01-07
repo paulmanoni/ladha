@@ -5,6 +5,7 @@ import { FileService } from './file-service.service';
 
 import * as getColors from 'get-image-colors';
 import * as tinygradient from 'tinygradient';
+import { resetComponentState } from '@angular/core/src/render3/state';
 
 var audio = new Audio();
 var play_timer;
@@ -286,9 +287,6 @@ export class PlaybackService {
 
   playNextSong(){
     this._electron.ipcRenderer.send("set-pref", "time_in", 0);
-    if(this.repeatMode === 2){
-      return this.restartCurrentSong();
-    }
 
     const is_last_song = this.curSongIndex === this.curPlaylist.length - 1;
     if(this.curSongIndex === -1 || (is_last_song && this.repeatMode == 1)){
@@ -301,9 +299,6 @@ export class PlaybackService {
 
   playPrevSong(){
     this._electron.ipcRenderer.send("set-pref", "time_in", 0);
-    if(this.repeatMode === 2){
-      this.restartCurrentSong();
-    }
 
     if(this.curSongIndex === -1 || (this.curSongIndex === 0 && this.repeatMode == 1)){
       this.playSong(this.curPlaylist.length - 1);
@@ -372,7 +367,11 @@ export class PlaybackService {
     }
 
     audio.onended = function(){
-      self.playNextSong();
+      self.reset();
+      if(self.repeatMode == 2)
+        self.restartCurrentSong();
+      else
+        self.playNextSong();
     }
   }
 
