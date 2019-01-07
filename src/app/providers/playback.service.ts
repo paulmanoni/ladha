@@ -280,7 +280,6 @@ export class PlaybackService {
   }
 
   restartCurrentSong(){
-    this.reset()
     audio.currentTime = 0;
     this.play();
   }
