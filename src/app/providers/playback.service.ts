@@ -37,6 +37,7 @@ export class PlaybackService {
   curDuration = 0;
   isPlaying = false;
   isMuted = false;
+  repeatMode = 0;
   showingPlaylist = false;
 
   playlist = new Subject<any>();
@@ -47,6 +48,7 @@ export class PlaybackService {
   timeIn = new Subject<any>();
   duration = new Subject<any>();
   muted = new Subject<any>();
+  repeat = new Subject<any>();
   showPlaylist = new Subject<any>();
   imageColors = new Subject<any>();
 
@@ -89,6 +91,13 @@ export class PlaybackService {
 
       if(!this.fromPrefs)
         this._electron.ipcRenderer.send("set-pref", "muted", muted);
+    });
+
+    this.repeat.subscribe(repeat => {
+      self.repeatMode = repeat;
+
+      if(!this.fromPrefs)
+        this._electron.ipcRenderer.send("set-pref", "repeat", repeat);
     });
 
     this.duration.subscribe(duration => {
@@ -166,6 +175,9 @@ export class PlaybackService {
           break;
         case SHORTCUT_VOLUME_MUTE :
           self.muted.next(!self.isMuted);
+          break;
+        case SHORTCUT_REPEAT :
+          self.setRepeat();
           break;
         case SHORTCUT_SHORT_BACKWARD:
             self.seekAudio(false, 6);
@@ -266,18 +278,34 @@ export class PlaybackService {
     }
   }
 
+  restartCurrentSong(){
+    this.reset()
+    audio.currentTime = 0;
+    this.play();
+  }
+
   playNextSong(){
     this._electron.ipcRenderer.send("set-pref", "time_in", 0);
-    if(this.curSongIndex === -1 || this.curSongIndex === this.curPlaylist.length - 1){
-      this.playSong(0);
-    }else{
+    if(this.repeatMode === 2){
+      return this.restartCurrentSong();
+    }
+
+    const is_last_song = this.curSongIndex === this.curPlaylist.length - 1;
+    if(this.curSongIndex === -1 || (is_last_song && this.repeatMode == 1)){
+      return this.playSong(0);
+    }
+    else{
       this.playSong(this.curSongIndex + 1);
     }
   }
 
   playPrevSong(){
     this._electron.ipcRenderer.send("set-pref", "time_in", 0);
-    if(this.curSongIndex === -1 || this.curSongIndex === 0){
+    if(this.repeatMode === 2){
+      this.restartCurrentSong();
+    }
+
+    if(this.curSongIndex === -1 || (this.curSongIndex === 0 && this.repeatMode == 1)){
       this.playSong(this.curPlaylist.length - 1);
     }else{
       this.playSong(this.curSongIndex - 1);
@@ -292,6 +320,7 @@ export class PlaybackService {
 
   loadAudio(song){
     var self = this;
+    const song_is_favorite = self._fileService.songIsFavorite(song.path);
 
     audio.oncanplay = function(){
       if(song.timeIn && song.timeIn != 0){
@@ -309,7 +338,6 @@ export class PlaybackService {
     this.curSongIndex = this.curPlaylist.findIndex(s => {
       return s.path === song.path;
     });
-    console.log("Current index changed to: " + this.curSongIndex);
   }
 
   startPlaying(){
@@ -365,6 +393,10 @@ export class PlaybackService {
     this.setPlaying(!this.isPlaying);
   }
 
+  setRepeat(){
+    this.repeat.next(this.repeatMode === 2 ? 0 : this.repeatMode + 1);
+  }
+
   expandPlayer(){
     this.showPlaylist.next(true);
   }
@@ -377,24 +409,35 @@ export class PlaybackService {
     audio.currentTime = 0;
     this.playing.next(false);
     this.timeIn.next(0);
+    this.duration.next(0);
   }
 
   getImageColors(buffer, mime){
     var self = this;
     var promise = new Promise((resolve, reject) => {
-      getColors(buffer, mime)
-      .then(colors => {
-          var gradient = tinygradient(colors.map(color => color.hex()));
-          var gradientStr = gradient.css();
+      try{
+        getColors(buffer, mime)
+          .then(colors => {
+              // var gradient = tinygradient(colors.map(color => color.hex()));
+              // var gradientStr = gradient.css();
 
-          var colors_map = {
-            progress: colors[0].alpha(0.3).css(),
-            bar: colors[0].css(),
-            gradient: gradientStr
-          }
-
-          resolve(colors[0].css());
-      });
+              // var colors_map = {
+              //   progress: colors[0].alpha(0.3).css(),
+              //   bar: colors[0].css(),
+              //   gradient: gradientStr
+              // }
+              if(colors && colors.length)
+                resolve(colors[0].css());
+              else
+                reject("No valid colors found");
+          })
+          .catch(err => {
+            reject(err);
+          });
+      }catch(e){
+        console.log("Error getting colors");
+        reject();
+      }
     });
     return promise;
   }

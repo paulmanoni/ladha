@@ -1,4 +1,4 @@
-<div id="playerBarWrapper" class="no-drag layout center" 
+<div id="playerBarWrapper" class="no-drag layout center"
     [style.backgroundColor]="bgColor | safeCss" *ngIf="!expanded">
     <div class="scrim"></div>
     <div id="curSong" class="layout center"
@@ -8,7 +8,7 @@
                 *ngIf="song.artwork &amp;&amp; song.artwork != null &amp;&amp; song.artwork != undefined  &amp;&amp; song.artwork != 'undefined'">
 
             <i class="mi mi-MusicAlbum" style="font-size: 40px;"
-                *ngIf="!song.artwork || song.artwork == null || song.artwork == undefined  || !song.artwork == 'undefined'"></i>   
+                *ngIf="!song.artwork || song.artwork == null || song.artwork == undefined  || !song.artwork == 'undefined'"></i>
         </div>
         <div class="text" *ngIf="song">
             <span class="title">
@@ -29,10 +29,14 @@
         </span>
     </div>
     <div id="controls" class="layout center">
+        <button *ngIf="song" (click)="favClicked()">
+            <i class="mi"
+              [ngClass]="{'mi-FavoriteLegacy': faved, 'mi-FavoriteStar': !faved}"></i>
+        </button>
         <button (click)="prevClicked()">
             <i class="mi mi-Previous"></i>
         </button>
-        <button *ngIf="!playing" (click)="playClicked()">    
+        <button *ngIf="!playing" (click)="playClicked()">
             <i class="mi mi-Play"></i>
         </button>
         <button *ngIf="playing" (click)="pauseClicked()">
@@ -40,6 +44,10 @@
         </button>
         <button (click)="nextClicked()">
             <i class="mi mi-Next"></i>
+        </button>
+        <button (click)="repeatClicked()" [ngClass]="{'active': repeat !== 0}">
+            <i class="mi"
+              [ngClass]="{'mi-Refresh': repeat !== 2, 'mi-RepeatOne': repeat === 2}"></i>
         </button>
     </div>
     <div id="volume" class="layout center">

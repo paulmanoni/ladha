@@ -11,7 +11,9 @@ export class FileService {
   albums = new Subject<any>();
   artists = new Subject<any>();
   folders = new Subject<any>();
+  playlists = new Subject<any>();
   song = new Subject<any>();
+  playlist_array = [];
   fols = [];
   song_array = [];
   album_array = [];
@@ -68,11 +70,35 @@ export class FileService {
       self.songs.next(self.song_array);
     });
 
+    this._electron.ipcRenderer.on("playlists-changed", function(e, playlists){
+      console.log("Playlists");
+      let formatted_playlists = [];
+      for (let [key, value] of Object.entries(playlists)) {
+        formatted_playlists.push({
+          title: key,
+          songs: value
+        });
+      }
+
+      self.playlist_array = formatted_playlists;
+      self.playlists.next(self.playlist_array);
+    });
+
     this._electron.ipcRenderer.on("index-fetched", function(e, index){
-      let { albums, artists, folders, songs } = index;
+      let { albums, artists, folders, playlists, songs } = index;
 
       self.folders.next(folders);
       self.fols = folders;
+
+      let formatted_playlists = [];
+      for (let [key, value] of Object.entries(playlists)) {
+        formatted_playlists.push({
+          title: key,
+          songs: value
+        });
+      }
+      self.playlists.next(formatted_playlists);
+      self.playlist_array = formatted_playlists;
 
       if(songs && songs.length){
 
@@ -137,6 +163,17 @@ export class FileService {
     this._electron.ipcRenderer.send("pick-folder");
   }
 
+  favoriteSong(song){
+    this._electron.ipcRenderer.send("fave-song", song);
+  }
+
+  songIsFavorite(song){
+    if(this.playlist_array && this.playlist_array.length && song && song.path){
+      return this.playlist_array[0].songs.indexOf(song.path) != -1;
+    }
+
+    else return false;
+  }
 
   getAlbumSongs(album){
     var promise = new Promise((resolve, reject) => {
@@ -166,6 +203,16 @@ export class FileService {
     return promise;
   }
 
+  getPlaylistSongs(playlist){
+    var promise = new Promise((resolve, reject) => {
+      var songs = this.song_array
+      .filter(song => playlist.indexOf(song.path) != -1);
+      resolve(songs);
+    });
+
+    return promise;
+  }
+
   getArtistAlbums(artist){
     var promise = new Promise((resolve, reject) => {
       var albums = this.album_array
@@ -180,6 +227,14 @@ export class FileService {
     return this.song_array;
   }
 
+  getPlayLists(){
+    return this.playlist_array;
+  }
+
+  getFolders(){
+    return this.fols;
+  }
+
   getAlbumList(){
     return this.album_array;
   }
@@ -189,7 +244,9 @@ export class FileService {
   }
 
   formattedTime(time = 0){
-    console.log(time);
+    if(!time || time == 0)
+      return '--:--';
+
     var hr  = parseInt((time/3600).toFixed(0));
     var min = parseInt((time/60).toFixed(0));
     var sec = parseInt((time%60).toFixed(0));

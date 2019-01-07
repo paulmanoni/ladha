@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { AlbumListComponent } from 'app/components/album-list/album-list.component';
-import { SongListComponent } from 'app/components/song-list/song-list.component';
+import { AlbumListComponent } from './components/album-list/album-list.component';
+import { SongListComponent } from './components/song-list/song-list.component';
 import { ArtistListComponent } from './components/artist-list/artist-list.component';
+import { PlaylistSongsComponent } from './components/playlist-songs/playlist-songs.component';
 
 const routes: Routes = [
     {
@@ -24,6 +25,14 @@ const routes: Routes = [
     {
         path: 'artists/:id',
         component: ArtistListComponent
+    },
+    {
+        path: 'playlist',
+        component: PlaylistSongsComponent
+    },
+    {
+        path: 'playlist/:id',
+        component: PlaylistSongsComponent
     },
     {
         path: '**',

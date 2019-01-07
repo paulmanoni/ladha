@@ -1,3 +1,4 @@
+import 'zone.js/dist/zone-patch-rxjs';
 import 'reflect-metadata';
 import 'polyfills';
 import { BrowserModule } from '@angular/platform-browser';
@@ -29,6 +30,7 @@ import { SafeCssPipe } from './pipes/safe-css.pipe';
 import { SongListComponent } from './components/song-list/song-list.component';
 import { AlbumListComponent } from './components/album-list/album-list.component';
 import { ArtistListComponent } from './components/artist-list/artist-list.component';
+import { PlaylistSongsComponent } from './components/playlist-songs/playlist-songs.component';
 import { SongCollectionComponent } from './components/song-collection/song-collection.component';
 
 // AoT requires an exported function for factories
@@ -45,6 +47,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     SongListComponent,
     AlbumListComponent,
     ArtistListComponent,
+    PlaylistSongsComponent,
     SongCollectionComponent,
     PlayerBarComponent,
     SafeHtmlPipe,

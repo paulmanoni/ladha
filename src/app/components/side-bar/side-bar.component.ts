@@ -17,28 +17,30 @@ export class SideBarComponent implements OnInit {
   folders = [];
   curSong;
   showFolders = false;
-  playlists  = false;
+  playlists  = [];
   @Input() curPage;
 
-  constructor(private _electron: ElectronService,
+  constructor(
     private _files: FileService,
     private _app: AppService,
     private ref:ChangeDetectorRef,
-    private route: Router,
     private activeRoute: ActivatedRoute) {
-    }
+  }
 
   ngOnInit() {
-    var self = this;
+    this.folders = this._files.getFolders();
+    this.playlists = this._files.getPlayLists();
 
     this._files.folders.subscribe(res => {
       this.folders = res;
-      this.ref.detectChanges();
+    });
+
+    this._files.playlists.subscribe(res => {
+      this.playlists = res;
     });
 
     this._app.page.subscribe(res => {
       this.curPage = res;
-      this.ref.detectChanges();
     });
 
     this.activeRoute.params.subscribe(p => {
@@ -61,9 +63,10 @@ export class SideBarComponent implements OnInit {
   }
 
   goTo(where){
-    // console.log(where);
-    // this.route.navigate([where]);
-    // this.route.navigate(['']);
     this._app.goTo(where);
+  }
+
+  viewPlaylist(playlist){
+    this._app.viewPlaylist(playlist);
   }
 }

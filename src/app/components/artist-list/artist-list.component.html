@@ -3,10 +3,10 @@
         *ngFor="let artist of artists"
         (click)="artistClicked(artist)">
         <div class="image layout center-justified">
-            <img style="min-height: 100%; min-width: 100%" [src]="artist.image.url | safeHtml" alt=""
+            <img [src]="artist.image.url | safeHtml" alt=""
                 *ngIf="artist.image &amp;&amp; artist.image != null &amp;&amp; artist.image != undefined  &amp;&amp; artist.image != 'undefined'">
 
-             <i class="mi mi-Musicartist" style="font-size: 60px;"
+             <i class="mi mi-Contact"
                 *ngIf="!artist.image || artist.image == null || artist.image == undefined  || !artist.image == 'undefined'"></i>
         </div>
         <span class="title">

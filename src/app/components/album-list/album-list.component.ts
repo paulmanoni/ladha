@@ -19,9 +19,7 @@ export class AlbumListComponent implements OnDestroy {
       this.albums = this._files.getAlbumList();
       this._files.albums.subscribe(res => {
         this.albums = res;
-        this.ref.detectChanges();
       });
-
   }
 
   albumClicked(album){

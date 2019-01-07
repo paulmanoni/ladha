@@ -3,8 +3,9 @@ import { PlaybackService } from '../../providers/playback.service';
 
 @Component({
   selector: 'main-page',
-  templateUrl: './main-page.component.html',
-  styleUrls: ['./main-page.component.css']
+  template: '<router-outlet></router-outlet>'
+  // templateUrl: './main-page.component.html',
+  // styleUrls: ['./main-page.component.css']
 })
 export class MainPageComponent {
 

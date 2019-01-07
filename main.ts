@@ -15,6 +15,7 @@ const assets_folder = path.join(__dirname, 'assets');
 let play_settings = {};
 let music_index = {};
 const default_music_index = {
+  playlists: { 'favorites' : [] },
   folders: [],
   songs: [],
   artists: [],
@@ -132,6 +133,14 @@ function createWindow() {
   ipcMain.on("set-pref", function(e, pref, value){
     play_settings[pref] = value;
     savePlaySettings(play_settings);
+  })
+
+  ipcMain.on("fave-song", function(e, song){
+    addSongToPlaylist('favorites', song)
+  })
+
+  ipcMain.on("add-song-to-playlist", function(e, playlist, song){
+    addSongToPlaylist(playlist, song)
   })
 }
 
@@ -418,7 +427,23 @@ function pickFolder(win){
   }
 }
 
+function addSongToPlaylist(playlist, song){
+  if(!music_index["playlists"][playlist])
+    music_index["playlists"][playlist] = [song.path];
+  else{
+    const song_index = music_index["playlists"][playlist].indexOf(song.path);
+    if(song_index !== -1)
+      music_index["playlists"][playlist].splice(song_index, 1);
+    else
+      music_index["playlists"][playlist].push(song.path);
+  }
+
+  win.webContents.send("playlists-changed", music_index["playlists"]);
+  saveIndex(music_index);
+}
+
 function registerShortcuts(win){
+  //play pause
   electronLocalshortcut.register(win, 'Space', function () {
     win.webContents.send('global-shortcut', 0);
   });
@@ -427,14 +452,17 @@ function registerShortcuts(win){
     win.webContents.send('global-shortcut', 0);
   });
 
-  electronLocalshortcut.register(win, 'Ctrl+P', function () {
-    win.webContents.send('global-shortcut', 0);
-  });
+  // // previous song
+  // electronLocalshortcut.register(win, 'CmdOrCtrl+P', function () {
+  //   win.webContents.send('global-shortcut', 0);
+  // });
 
+  // next song
   electronLocalshortcut.register(win, 'N', function () {
     win.webContents.send('global-shortcut', 1);
   });
 
+  // previous song
   electronLocalshortcut.register(win, 'P', function () {
     win.webContents.send('global-shortcut', 2);
   });
@@ -448,26 +476,36 @@ function registerShortcuts(win){
   });
 
   // LONG SKIP NEXT BACK
-  electronLocalshortcut.register(win, 'Ctrl+Right', function () {
+  electronLocalshortcut.register(win, 'CmdOrCtrl+Right', function () {
       win.webContents.send('global-shortcut', 5);
   });
-  electronLocalshortcut.register(win, 'Ctrl+Left', function () {
+  electronLocalshortcut.register(win, 'CmdOrCtrl+Left', function () {
       win.webContents.send('global-shortcut', 6);
   });
 
+  //REPEAT
+  electronLocalshortcut.register(win, 'CmdOrCtrl+R', function () {
+      win.webContents.send('global-shortcut', 7);
+  });
+
+  //SHUFFLE
+  electronLocalshortcut.register(win, 'CmdOrCtrl+S', function () {
+      win.webContents.send('global-shortcut', 8);
+  });
+
   // VOLUME UP / DOWN / MUTE
-  electronLocalshortcut.register(win, 'Ctrl+Down', function () {
+  electronLocalshortcut.register(win, 'CmdOrCtrl+Down', function () {
       win.webContents.send('global-shortcut', 10);
   });
-  electronLocalshortcut.register(win, 'Ctrl+Up', function () {
+  electronLocalshortcut.register(win, 'CmdOrCtrl+Up', function () {
       win.webContents.send('global-shortcut', 11);
   });
-  electronLocalshortcut.register(win, 'Ctrl+M', function () {
+  electronLocalshortcut.register(win, 'CmdOrCtrl+M', function () {
       win.webContents.send('global-shortcut', 12);
   });
 
   // TOGGLE PLAYLIST
-  electronLocalshortcut.register(win, 'Ctrl+L', function () {
+  electronLocalshortcut.register(win, 'CmdOrCtrl+L', function () {
       win.webContents.send('global-shortcut', 18);
   });
 }

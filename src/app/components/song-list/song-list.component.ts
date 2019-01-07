@@ -19,7 +19,6 @@ export class SongListComponent implements OnDestroy {
 
       this._files.songs.subscribe(res => {
         this.songs = res;
-        // this.ref.detectChanges();
       });
 
       this._playback.song.subscribe(res => {

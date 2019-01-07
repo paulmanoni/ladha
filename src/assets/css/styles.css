@@ -86,7 +86,7 @@ body{
     font-size: 15px;
     line-height: 27px;
     background: var(--main-color, #f8f8f8);
-    color: #000; 
+    color: #000;
 }
 
 .btn:hover{
@@ -230,7 +230,10 @@ input[type=range]:focus::-webkit-slider-runnable-track {
     background: rgba(255, 255, 255, 1);
 }
 
-album-list, song-list, artist-list{
+album-list,
+song-list,
+artist-list,
+playlist-songs{
     display: block;
     width: 100%;
 }

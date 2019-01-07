@@ -28,10 +28,20 @@ npm install
 |`npm run electron:mac`|  On a MAC OS, builds your application and generates a `.app` file of your application that can be run on Mac |
 
 
-## Screenshot
-![Ladha Screenshot](/screenshot.png?raw=true "Ladha Screenshot")
+## Screenshots
+![Albums Screen](/screenshots/albums-screen.png?raw=true "Albums Screen")
+
+![Album Details Screen](/screenshots/album-details-screen.png?raw=true "Album Details Screen")
+
+![Artists Screen](/screenshots/artists-screen.png?raw=true "Artists Screen")
+
+![Songs Screen](/screenshots/songs-screen.png?raw=true "Songs Screen")
 
 ## Todos
-- [ ] Fix auto update bug in songlist and sidebar
 - [ ] Add playlists functionality
-- [ ] Make outer shell and app icons dynamic based on platform
+- [ ] Fix error when viewing playlists on app load
+- [ ] Add automatically genereted playlist of recents with up to 20 songs
+- [ ] Add spotify integration for suggestions and trending music
+- [ ] Add mini player functionality
+- [ ] Reduce size of main.ts by creating sub module for distinct features such as preferences management
+- [ ] Make outer shell, app icons and fonts dynamic based on platform

@@ -6,7 +6,12 @@
                 *ngIf="collection.artwork">
 
             <i class="mi mi-MusicAlbum" style="z-index: 1;background: #eee;font-size: 70px;padding: 0.5em;"
-                *ngIf="!collection.artwork"></i>   
+                *ngIf="!collection.artwork && collection.type != 'playlist'"></i>
+
+            <i *ngIf="!collection.artwork && collection.type === 'playlist'"
+              class="mi"
+              [ngClass]="{'mi-FavoriteList': collection.title == 'favorites', 'mi-Library' : collection.title != 'favorites'}"
+              style="z-index: 1;background: #eee;font-size: 70px;padding: 0.5em;"></i>
         </div>
 
         <div>
@@ -15,7 +20,7 @@
                 <span *ngIf="collection.artist">
                     Artist: {{collection.artist}}
                 </span>
-                <span *ngIf="collection.type == 'playlist'">
+                <span *ngIf="collection.type == 'album'">
                     Album: {{collection.album}}
                 </span>
                 <span *ngIf="collection.year">
@@ -25,11 +30,15 @@
                     {{collection.songs.length}} song<span *ngIf="collection.songs.length > 1">s</span>
                 </span>
 
-                <button (click)="playAll()">PLAY ALL</button>
+                <button *ngIf="collection.songs && collection.songs.length && collection.type !== 'nowplaying'"
+                  (click)="playAll()">PLAY ALL</button>
             </p>
         </div>
     </div>
-    <div id="songs" style="background: #fff; padding: 30px 4em; height: calc(100% - 320px); overflow: auto">
+    <div id="songs" style="background: #fff; padding: 12px 30px; height: calc(100% - 320px); overflow: auto">
+        <div *ngIf="!collection.songs || !collection.songs.length" style="text-transform: capitalize; padding: 0.5em; min-height: 65px;" class="layout center-center">
+            {{ collection.title }} has no songs.
+        </div>
         <div style="padding: 0.5em; min-height: 65px;" class="layout center justified"
             *ngFor="let song of collection.songs; let i = index"
             (click)="songClicked(song)">
@@ -54,7 +63,7 @@
                 {{song.genre || "Unknown Genre"}}
             </span>
             <span style="padding: 0 0.5em">
-                {{song.duration_str || "00:00"}}
+                {{song.duration_str || "--:--"}}
             </span>
         </div>
     </div>

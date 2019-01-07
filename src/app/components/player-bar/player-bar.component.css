@@ -109,6 +109,11 @@ i{
     font-size: 20px;
     background: transparent;
     border: none;
+    border-radius: 50%;
+}
+
+#controls button.active{
+  background: rgba(255, 255, 255, 0.25);
 }
 
 #controls button:hover{

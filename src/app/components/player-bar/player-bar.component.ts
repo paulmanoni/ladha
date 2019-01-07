@@ -1,21 +1,23 @@
-import { Component, OnInit, ChangeDetectorRef, Input, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectorRef, Input, OnDestroy } from '@angular/core';
 import { PlaybackService } from '../../providers/playback.service';
-import { ElectronService } from 'ngx-electron';
 import { AppService } from '../../providers/app.service';
+import { FileService } from '../../providers/file-service.service';
 
 @Component({
   selector: 'player-bar',
   templateUrl: './player-bar.component.html',
   styleUrls: ['./player-bar.component.css']
 })
-export class PlayerBarComponent implements OnInit, OnDestroy{
+export class PlayerBarComponent implements OnDestroy{
   timeIn = 0;
   duration = 0;
   progress = 0;
   volume = 0;
+  repeat = 0;
+  faved = false;
   muted = false;
   playing = false;
-  song = {};
+  song:any = {};
   bgColor = "#555";
   @Input() expanded = false;
   playlist = {
@@ -24,16 +26,22 @@ export class PlayerBarComponent implements OnInit, OnDestroy{
     artist: "",
     album: "",
     year: "",
-    type: "playlist",
+    type: "nowplaying",
     songs: []
   };
   songs;
 
   constructor(private _playback: PlaybackService,
     private _app: AppService,
-    private _electron: ElectronService,
+    private _file: FileService,
     private ref: ChangeDetectorRef){
     var self = this;
+
+    this._file.playlists.subscribe(res => {
+      if(this.song && this.song.path){
+        this.setFaveState();
+      }
+    });
 
     this._playback.song.subscribe(res => {
       this.song = res;
@@ -42,19 +50,22 @@ export class PlayerBarComponent implements OnInit, OnDestroy{
       this.playlist.artist = res.artist;
       this.playlist.album = res.album;
       this.playlist.year = res.year;
-      this.playlist.type = "playlist";
+      this.playlist.type = "nowplaying";
+
+      this.setFaveState();
 
       this._playback.getImageColors(res.artwork.url, 'image/' + res.artwork.mime)
         .then((color: string) => {
           this.bgColor = color;
           console.log("Player bar color: " + this.bgColor);
           ref.detectChanges();
-        });
+        })
+        .catch(error => console.log('Error fetching bar color.', error));
     });
 
     this._playback.playlist.subscribe(res => {
       this.playlist.songs = res;
-      this.playlist.type = "playlist";
+      this.playlist.type = "nowplaying";
       ref.detectChanges();
     });
 
@@ -80,14 +91,21 @@ export class PlayerBarComponent implements OnInit, OnDestroy{
       ref.detectChanges();
     });
 
+    this._playback.repeat.subscribe(res => {
+      this.repeat = res;
+      ref.detectChanges();
+    });
+
     this._playback.volume.subscribe(res => {
       this.volume = res*10;
       ref.detectChanges();
     });
   }
 
-  ngOnInit():void{
-    // this.playlistClicked();
+  setFaveState(){
+    this.faved = this._file.songIsFavorite(this.song);
+    this.ref.detectChanges();
+    console.log("Fetched favorite state: ", this.faved);
   }
 
   playClicked(){
@@ -104,6 +122,16 @@ export class PlayerBarComponent implements OnInit, OnDestroy{
 
   nextClicked(){
     this._playback.playNextSong();
+  }
+
+  repeatClicked(){
+    this._playback.setRepeat();
+  }
+
+  favClicked(){
+    this._file.favoriteSong(this.song);
+    this.faved = !this.faved;
+    this.ref.detectChanges();
   }
 
   playlistClicked(){

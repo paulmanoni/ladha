@@ -18,7 +18,6 @@ export class ArtistListComponent implements OnDestroy{
       this.artists = this._files.getArtistList();
       this._files.artists.subscribe(res => {
         this.artists = res;
-        // this.ref.detectChanges();
       });
   }
 

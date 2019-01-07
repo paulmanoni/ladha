@@ -82,8 +82,13 @@
             </span>
         </a>
 
-        <div style="display: none">
-            <div class="section-title">
+        <div *ngIf="playlists && playlists.length">
+            <div class="section-title bold">
+                <span class="for-lg">
+                    Playlists
+                </span>
+            </div>
+            <!-- <div class="section-title">
                 <span class="for-lg">
                     Playlists
                 </span>
@@ -94,26 +99,28 @@
                 <button *ngIf="playlists" class="action-btn"  title="Create Playlist">
                     <i class="mi mi-Add"></i>
                 </button>
+            </div> -->
+
+            <div (click)="viewPlaylist(playlist)" *ngFor="let playlist of playlists; let i = index;"
+                class="section-item playlist-item light-hover">
+                <i class="mi"
+                  [ngClass]="{'mi-FavoriteList': i == 0, 'mi-Library' : i != 0}"></i>
+                <span class="for-lg">
+                    {{ playlist.title || 'Untitled Playlist' }}
+                </span>
             </div>
 
-            <div class="section-item light-hover">
+            <!-- <div class="section-item light-hover">
                 <i class="mi mi-Streaming"></i>
                 <span class="for-lg">
                     Now Playing
                 </span>
             </div>
 
-            <div *ngIf="playlists" class="section-item light-hover">
-                <i class="mi mi-FavoriteList"></i>
-                <span class="for-lg">
-                    Favorites
-                </span>
-            </div>
-
             <div *ngIf="playlists" class="section-item light-hover for-lg">
                 <i class="mi mi-Library"></i>
                 Recent
-            </div>
+            </div> -->
         </div>
 
         <hr class="divider" style="display:none">
