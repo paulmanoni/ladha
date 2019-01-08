@@ -37,7 +37,8 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1300, height: 800, frame: false,
     webPreferences: {
-      webSecurity: false
+      webSecurity: false,
+      nodeIntegrationInWorker: true
     }
     // x: 0, y: 0,
     // width: size.width, height: size.height
@@ -508,6 +509,15 @@ function registerShortcuts(win){
   electronLocalshortcut.register(win, 'CmdOrCtrl+L', function () {
       win.webContents.send('global-shortcut', 18);
   });
+
+  // OPEN DEVTOOLS
+  electronLocalshortcut.register(win, 'CmdOrCtrl+D', function () {
+      win.webContents.openDevTools();
+  });
+}
+
+function log(message){
+  win.webContents.send('log-message', message);
 }
 
 function getImageColors(buffer, mime, win, gradient){

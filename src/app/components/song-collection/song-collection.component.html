@@ -20,13 +20,13 @@
                 <span *ngIf="collection.artist">
                     Artist: {{collection.artist}}
                 </span>
-                <span *ngIf="collection.type == 'album'">
+                <span *ngIf="collection.type == 'nowplaying'">
                     Album: {{collection.album}}
                 </span>
                 <span *ngIf="collection.year">
                     Release: {{collection.year}}
                 </span>
-                <span *ngIf="collection.songs && collection.type != 'playlist'">
+                <span *ngIf="collection.songs && collection.type != 'nowplaying'">
                     {{collection.songs.length}} song<span *ngIf="collection.songs.length > 1">s</span>
                 </span>
 

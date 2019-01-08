@@ -39,6 +39,7 @@ npm install
 
 ## Todos
 - [ ] Add playlists functionality
+- [ ] Clear all media when app reloads
 - [ ] Fix error when viewing playlists on app load
 - [ ] Add automatically genereted playlist of recents with up to 20 songs
 - [ ] Add spotify integration for suggestions and trending music

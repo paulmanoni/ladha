@@ -39,7 +39,7 @@ export class PlayerBarComponent implements OnDestroy{
 
     this._file.playlists.subscribe(res => {
       if(this.song && this.song.path){
-        this.setFaveState();
+        this.setFaveState(this.song);
       }
     });
 
@@ -52,7 +52,7 @@ export class PlayerBarComponent implements OnDestroy{
       this.playlist.year = res.year;
       this.playlist.type = "nowplaying";
 
-      this.setFaveState();
+      this.setFaveState(res);
 
       this._playback.getImageColors(res.artwork.url, 'image/' + res.artwork.mime)
         .then((color: string) => {
@@ -102,8 +102,8 @@ export class PlayerBarComponent implements OnDestroy{
     });
   }
 
-  setFaveState(){
-    this.faved = this._file.songIsFavorite(this.song);
+  setFaveState(song){
+    this.faved = this._file.songIsFavorite(song);
     this.ref.detectChanges();
     console.log("Fetched favorite state: ", this.faved);
   }
@@ -130,8 +130,8 @@ export class PlayerBarComponent implements OnDestroy{
 
   favClicked(){
     this._file.favoriteSong(this.song);
-    this.faved = !this.faved;
-    this.ref.detectChanges();
+    // this.faved = !this.faved;
+    // this.ref.detectChanges();
   }
 
   playlistClicked(){

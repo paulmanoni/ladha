@@ -291,7 +291,7 @@ export class PlaybackService {
     if(this.curSongIndex === -1 || (is_last_song && this.repeatMode == 1)){
       return this.playSong(0);
     }
-    else{
+    else if(!is_last_song){
       this.playSong(this.curSongIndex + 1);
     }
   }
@@ -405,6 +405,7 @@ export class PlaybackService {
 
   reset(){
     audio.currentTime = 0;
+    audio.pause();
     this.playing.next(false);
     this.timeIn.next(0);
     this.duration.next(0);
