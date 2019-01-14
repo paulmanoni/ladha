@@ -16,6 +16,7 @@ export class PlayerBarComponent implements OnDestroy{
   repeat = 0;
   faved = false;
   muted = false;
+  shuffled = false;
   playing = false;
   song:any = {};
   bgColor = "#555";
@@ -96,6 +97,11 @@ export class PlayerBarComponent implements OnDestroy{
       ref.detectChanges();
     });
 
+    this._playback.shuffle.subscribe(res => {
+      this.shuffled = res;
+      ref.detectChanges();
+    });
+
     this._playback.volume.subscribe(res => {
       this.volume = res*10;
       ref.detectChanges();
@@ -128,6 +134,10 @@ export class PlayerBarComponent implements OnDestroy{
     this._playback.setRepeat();
   }
 
+  shuffleClicked(){
+    this._playback.setShuffle();
+  }
+
   favClicked(){
     this._file.favoriteSong(this.song);
     // this.faved = !this.faved;
@@ -137,6 +147,10 @@ export class PlayerBarComponent implements OnDestroy{
   playlistClicked(){
     this._playback.expandPlayer();
     this._app.addBack(AppService.GO_BACK_PLAYER);
+  }
+
+  muteClicked(){
+    this._playback.mute();
   }
 
   formattedTime(time = 0){

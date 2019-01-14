@@ -57,29 +57,29 @@
   </style>
 </head>
 <body>
-  <app-root>
-    <div id="tempActionButtons"  class="no-drag layout end-justified center">
-      <button class="layout center-center" onclick="appAction(1)">
-        <i class="mi mi-ChromeMinimize"></i>
-      </button>
-      <button class="layout center-center" onclick="appAction(2)">
-        <i class="mi mi-ChromeMaximize"></i>
-      </button>
-      <button class="layout center-center" onclick="appAction(0)">
-        <i class="mi mi-ChromeClose"></i>
-      </button>
+  <div id="tempActionButtons"  class="no-drag layout end-justified center">
+    <button class="layout center-center" onclick="appAction(1)">
+      <i class="mi mi-ChromeMinimize"></i>
+    </button>
+    <button class="layout center-center" onclick="appAction(2)">
+      <i class="mi mi-ChromeMaximize"></i>
+    </button>
+    <button class="layout center-center" onclick="appAction(0)">
+      <i class="mi mi-ChromeClose"></i>
+    </button>
+  </div>
+  <div class="image-bg" style="pointer-events: none; position: fixed;top: 0;bottom: 0;left: 0;right: 0; font-size: 2.4em;">
+    <div class="layout vertical center-center"
+      style="position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.3)">
+        <img src="assets/images/logo.png" alt="" height="120px">
+        <h3 style="margin-top: 12px; margin-bottom: 8px">Ladha</h3>
+        <p style="font-size: 0.5em; margin-bottom: 24px;">
+          All your music in one place for you to enjoy.
+        </p>
     </div>
-    <div class="image-bg" style="pointer-events: none; position: fixed;top: 0;bottom: 0;left: 0;right: 0; font-size: 2.4em;">
-      <div class="layout vertical center-center"
-        style="position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.3)">
-          <img src="assets/images/logo.png" alt="" height="120px">
-          <h3 style="margin-top: 12px; margin-bottom: 8px">Ladha</h3>
-          <p style="font-size: 0.5em; margin-bottom: 24px;">
-            All your music in one place for you to enjoy.
-          </p>
-      </div>
-    </div>
-  </app-root>
+  </div>
+
+  <app-root></app-root>
 
   <div id="hoverTeller" class="layout center-center">
     <div class="area layout center-center">

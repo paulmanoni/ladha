@@ -6,6 +6,7 @@ import { ElectronService } from 'ngx-electron';
 @Injectable()
 export class FileService {
   cur_type;
+  indexFetched = new Subject<boolean>();
   loading = new Subject<boolean>();
   songs = new Subject<any>();
   albums = new Subject<any>();
@@ -86,6 +87,8 @@ export class FileService {
 
     this._electron.ipcRenderer.on("index-fetched", function(e, index){
       let { albums, artists, folders, playlists, songs } = index;
+
+      self.indexFetched.next(true);
 
       self.folders.next(folders);
       self.fols = folders;

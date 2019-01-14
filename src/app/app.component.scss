@@ -1,5 +1,17 @@
 #appWrapper{
-    display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 100;
+  display: flex;
+}
+
+#appWrapper:not(.loaded){
+  opacity: 0;
+  pointer-events: none;
 }
 
 title-bar{
@@ -68,12 +80,12 @@ player-bar.expanded{
 }
 
 #loader{
-    font-family: Segoe Light; 
+    font-family: Segoe Light;
     font-size:2em;
     color:orange;
-    background: rgba(255,255,255,0.8); 
-    position: fixed; top:0; left:0; 
-    width:100vw; height: 100vh; 
+    background: rgba(255,255,255,0.8);
+    position: fixed; top:0; left:0;
+    width:100vw; height: 100vh;
     z-index:9;
 }
 

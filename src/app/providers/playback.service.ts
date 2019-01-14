@@ -5,7 +5,6 @@ import { FileService } from './file-service.service';
 
 import * as getColors from 'get-image-colors';
 import * as tinygradient from 'tinygradient';
-import { resetComponentState } from '@angular/core/src/render3/state';
 
 var audio = new Audio();
 var play_timer;
@@ -31,6 +30,7 @@ export class PlaybackService {
   allSongsPlaylist = [];
   recentsPlaylist = [];
   curPlaylist = [];
+  playedSongs = [];
   fromUser = false;
   fromPrefs = false;
   curVolume = 0.5;
@@ -38,6 +38,7 @@ export class PlaybackService {
   curDuration = 0;
   isPlaying = false;
   isMuted = false;
+  isShuffled = false;
   repeatMode = 0;
   showingPlaylist = false;
 
@@ -50,6 +51,7 @@ export class PlaybackService {
   duration = new Subject<any>();
   muted = new Subject<any>();
   repeat = new Subject<any>();
+  shuffle = new Subject<any>();
   showPlaylist = new Subject<any>();
   imageColors = new Subject<any>();
 
@@ -59,6 +61,9 @@ export class PlaybackService {
 
     this.song.subscribe(song => {
       this.curSong = song;
+      if(this.playedSongs.indexOf(song.path) === -1){
+        this.playedSongs.push(song.path);
+      }
       if(!this.fromPrefs)
         this._electron.ipcRenderer.send("set-pref", "last_song", song);
     });
@@ -101,6 +106,13 @@ export class PlaybackService {
         this._electron.ipcRenderer.send("set-pref", "repeat", repeat);
     });
 
+    this.shuffle.subscribe(shuffle => {
+      self.isShuffled = shuffle;
+
+      if(!this.fromPrefs)
+        this._electron.ipcRenderer.send("set-pref", "shuffle", shuffle);
+    });
+
     this.duration.subscribe(duration => {
       this.curDuration = duration;
       if(this.curSong){
@@ -133,8 +145,11 @@ export class PlaybackService {
           if(prefs.volume != undefined)
             self.volume.next(prefs.volume);
 
-          if(prefs.muted != undefined)
-            self.muted.next(prefs.muted);
+          if(prefs.muted != undefined && prefs.muted)
+            self.mute();
+
+          if(prefs.shuffle != undefined)
+            self.setShuffle(prefs.shuffle);
 
           if(prefs.show_playlist != undefined)
             self.showPlaylist.next(prefs.show_playlist);
@@ -179,6 +194,9 @@ export class PlaybackService {
           break;
         case SHORTCUT_REPEAT :
           self.setRepeat();
+          break;
+        case SHORTCUT_SHUFFLE :
+          self.setShuffle();
           break;
         case SHORTCUT_SHORT_BACKWARD:
             self.seekAudio(false, 6);
@@ -235,6 +253,7 @@ export class PlaybackService {
   setCurPlayList(songs){
     this.curPlaylist = songs;
     this.playlist.next(songs);
+    this.playedSongs = [];
   }
 
   seekAudio(dir, val){
@@ -284,8 +303,44 @@ export class PlaybackService {
     this.play();
   }
 
+  shuffleArray(array) {
+    let counter = array.length;
+
+    // While there are elements in the array
+    while (counter > 0) {
+        // Pick a random index
+        let index = Math.floor(Math.random() * counter);
+
+        // Decrease counter by 1
+        counter--;
+
+        // And swap the last element with it
+        let temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+
+    return array;
+  }
+
   playNextSong(){
     this._electron.ipcRenderer.send("set-pref", "time_in", 0);
+
+    if(this.isShuffled){
+      if(this.curPlaylist.length === this.playedSongs.length){
+        this.playedSongs = [];
+      }
+
+      const unplayedSongs = this.curPlaylist.filter(s => this.playedSongs.indexOf(s.path) === -1);
+      const nextSong = this.shuffleArray(unplayedSongs)[0];
+      const nextIdx = this.curPlaylist.findIndex(s => s.path = nextSong.path);
+
+      console.log("Played Songs Shuffle: ", this.playedSongs, unplayedSongs);
+      console.log("NextSong Shuffle: ", nextSong);
+      console.log("NextIdx Shuffle: ", nextIdx);
+
+      return this.playSong(nextIdx);
+    }
 
     const is_last_song = this.curSongIndex === this.curPlaylist.length - 1;
     if(this.curSongIndex === -1 || (is_last_song && this.repeatMode == 1)){
@@ -298,6 +353,17 @@ export class PlaybackService {
 
   playPrevSong(){
     this._electron.ipcRenderer.send("set-pref", "time_in", 0);
+
+    if(this.isShuffled){
+      const prevPath = this.playedSongs[this.playedSongs.length - 1];
+      const prevIdx = this.curPlaylist.findIndex(s => s.path = prevPath);
+
+      console.log("PrevSong Shuffle: ", prevPath);
+      console.log("PrevIdx Shuffle: ", prevIdx);
+
+      // return this.playSong(prevIdx !== -1 ? prevIdx : 0);
+      return this.playSong(prevIdx !== -1 ? prevIdx : 0);
+    }
 
     if(this.curSongIndex === -1 || (this.curSongIndex === 0 && this.repeatMode == 1)){
       this.playSong(this.curPlaylist.length - 1);
@@ -380,6 +446,10 @@ export class PlaybackService {
     this._electron.ipcRenderer.send("set-pref", "time_in", audio.currentTime);
   }
 
+  mute(){
+    this.muted.next(!this.isMuted);
+  }
+
   setPlaying(state: boolean){
     if(state)
       this.play();
@@ -393,6 +463,10 @@ export class PlaybackService {
 
   setRepeat(){
     this.repeat.next(this.repeatMode === 2 ? 0 : this.repeatMode + 1);
+  }
+
+  setShuffle(state?){
+    this.shuffle.next(state === undefined ? !this.isShuffled : state);
   }
 
   expandPlayer(){

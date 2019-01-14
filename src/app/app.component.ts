@@ -11,6 +11,7 @@ import { PlaybackService } from './providers/playback.service';
 export class AppComponent implements OnDestroy {
   maximized: boolean = false;
   loading: boolean = false;
+  loaded: boolean = false;
   playing: boolean = false;
   title = "My Music";
   currentPage = "songs";
@@ -62,6 +63,11 @@ export class AppComponent implements OnDestroy {
 
       this._app.hasBack.subscribe(res => {
         this.hasBack = res;
+        // this.ref.detectChanges();
+      });
+
+      this._files.indexFetched.subscribe(res => {
+        this.loaded = res;
         // this.ref.detectChanges();
       });
 

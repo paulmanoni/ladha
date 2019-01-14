@@ -40,6 +40,8 @@ npm install
 ## Todos
 - [ ] Add playlists functionality
 - [ ] Clear all media when app reloads
+- [ ] Clicking on left navigation should close detail pages or nowplaying
+- [ ] Notify UI on errors like invalid file formats.
 - [ ] Fix error when viewing playlists on app load
 - [ ] Add automatically genereted playlist of recents with up to 20 songs
 - [ ] Add spotify integration for suggestions and trending music
