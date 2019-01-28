@@ -39,6 +39,7 @@ npm install
 
 ## Todos
 - [ ] Move selected folders to settings page
+- [ ] Make selected folders work properly by also removing albums, artists and songs
 - [ ] Optimize file reading using web worker
 - [ ] Notify UI on errors like invalid file formats or files currently being processed.
 - [ ] Add albums to artists page

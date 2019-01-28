@@ -293,10 +293,15 @@ function onArtistImageFetched(e, name, image){
 
   // log("Artsit image fetched");
   // log(artist);
+  // log(`Artist index: ${idx}`)
 
-  win.webContents.send("artist-fetched", artist);
+  if(idx === -1)
+    idx = music_index["artists"].length;
+
   music_index["artists"][idx] = artist;
   saveIndex(music_index);
+
+  win.webContents.send("artist-fetched", artist);
 }
 
 function onTagsFetched(e, data){
