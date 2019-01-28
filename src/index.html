@@ -91,15 +91,49 @@
       const {ipcRenderer} = require('electron');
       const path = require('path');
 
+      // var SpotifyWebApi = require('spotify-web-api-node');
+      // // credentials are optional
+      // var spotifyApi = new SpotifyWebApi({
+      //   clientId: '383620f73a0d43d9a90bbce3c874a23e',
+      //   clientSecret: '4fcbe9a340d349c984a0455dc94caf6a'
+      // });
+
+      // spotifyApi.clientCredentialsGrant().then(data => {
+      //     // console.log('The access token expires in ' + data.body['expires_in']);
+      //     // console.log('The access token is ' + data.body['access_token']);
+      //     spotifyApi.setAccessToken(data.body['access_token']);
+
+      //     return spotifyApi.searchArtists('Kt Tunstall');
+      //   },
+      //   (err) => {
+      //     console.log(
+      //       'Something went wrong when retrieving an access token',
+      //       err.message
+      //     );
+      //   }
+      // )
+      // .then(res => {
+      //   const artists = res.body.artists.items;
+      //   console.log(artists[0].images[1].url);
+      // })
+
+      ipcRenderer.on("fetch-artist-image", function(e, artist){
+        const image_worker_path = path.join(__dirname, 'assets/artist_image_worker.js');
+        const image_worker = new Worker(image_worker_path);
+
+        image_worker.postMessage(artist);
+        image_worker.addEventListener('message', function(e){
+          ipcRenderer.send("artist-image-fetched", artist, e.data);
+        });
+      });
+
       ipcRenderer.on("fetch-tags", function(e, fl, albumArt){
         const worker_path = path.join(__dirname, 'assets/tags_worker.js');
-        console.log("Worker called!", worker_path);
 
         var worker = new Worker(worker_path);
         worker.postMessage({file: fl, albumArt : albumArt});
 
         worker.addEventListener('message', function(e){
-          console.log("Worker's back!");
           ipcRenderer.send("tags-fetched", e.data);
         });
       });

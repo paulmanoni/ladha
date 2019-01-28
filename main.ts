@@ -7,8 +7,6 @@ import * as tinygradient from 'tinygradient';
 import * as storage from 'electron-json-storage';
 import * as electronLocalshortcut from 'electron-localshortcut';
 import * as Worker from 'workerjs';
-import * as GoogleImages from 'google-images';
-import * as base64Img from 'image-to-base64';
 
 let win, serve;
 const assets_folder = path.join(__dirname, 'assets');
@@ -145,6 +143,8 @@ function createWindow() {
   })
 
   ipcMain.on("tags-fetched", onTagsFetched);
+
+  ipcMain.on("artist-image-fetched", onArtistImageFetched);
 }
 
 try {
@@ -287,13 +287,20 @@ function getTags(full_path, file_inner, covers){
   win.webContents.send('fetch-tags', fl, albumArt);
 }
 
-const GOOGLE_API_KEY = "AIzaSyA9QxtaVAxgyUp7I7BE9sc16qS02LX6Q7E"
-const CSE_ID = "013275443262624560269:s160zfrdiwq"
+function onArtistImageFetched(e, name, image){
+  var artist = {name, image};
+  var idx = music_index["artists"].findIndex(a => a.name === name);
 
-const imageApi = new GoogleImages(CSE_ID, GOOGLE_API_KEY);
+  // log("Artsit image fetched");
+  // log(artist);
+
+  win.webContents.send("artist-fetched", artist);
+  music_index["artists"][idx] = artist;
+  saveIndex(music_index);
+}
 
 function onTagsFetched(e, data){
-  console.log("Result from Worker!", data);
+  // console.log("Result from Worker!", data);
   var song = data.song;
   var albumArt = data.albumArt;
   var err = data.err;
@@ -337,29 +344,13 @@ function onTagsFetched(e, data){
     }
 
     if(song.artist){
-      var artists = music_index["artists"].filter(a => a.name === song.artist);
-      var idx = music_index["artists"].length;
+      var matching_artists = music_index["artists"].filter(a => a.name === song.artist);
 
-      if(!artists.length){
+      if(!matching_artists.length){
         music_index["artists"].push({name: song.artist, image: ""});
         saveIndex(music_index);
 
-        getArtistImage(song.artist)
-        .then(artist_image => {
-          console.log("Image was fetched!!!");
-
-          var idx2 = music_index["artists"].findIndex(a => a.name === song.artist);
-          console.log("Index 1: " + idx, "Index 2: " + idx2);
-          console.log(music_index["artists"][idx]);
-
-          music_index["artists"][idx] = {name: song.artist, image: artist_image};
-          saveIndex(music_index);
-          win.webContents.send("artist-fetched", {name: song.artist, image: artist_image});
-        })
-        .catch( err => {
-          console.log("Error: " + err);
-          win.webContents.send("artist-fetched", {name: song.artist, image: ""});
-        });
+        win.webContents.send('fetch-artist-image', song.artist);
       }
     }
   }
@@ -369,45 +360,6 @@ function onTagsFetched(e, data){
       console.log(err);
       console.log("***Error mwisho***\n");
   }
-}
-
-function getArtistImage(name){
-  var promise = new Promise((resolve, reject) => {
-    console.log("\n\nFetching image for " + name + "....\n\n");
-    if(!name || name == "Unknown Artist")
-      return reject("Name required!");
-
-    imageApi.search(name + " musician recent", {size: 'medium', type: 'face'})
-    .then(images => {
-      if(images.length){
-        var image = images[0];
-        var mime = image.type.split('/')[1];
-        var large = {url: image.url, mime: mime};
-        console.log("Converting to base64.....\n\n");
-
-        var image_url = image.url;
-        base64Img(image_url)
-        .then(response => {
-            var artwork_url = 'data:image/'+mime+';base64,';
-            artwork_url+=response;
-            // clipboard.writeText(artwork_url);
-            // console.log("Image url copied!");
-            resolve({url: artwork_url, mime: mime});
-          })
-          .catch(error => {
-            reject("Converting Error: " + error);
-          });
-      }else{
-        reject("No images found for: " + name);
-      }
-    })
-    .catch(error => {
-      console.log("API Error:", error);
-      reject(error);
-    });
-  });
-
-  return promise;
 }
 
 function pickFolder(win){
