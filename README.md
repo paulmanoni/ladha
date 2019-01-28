@@ -38,10 +38,15 @@ npm install
 ![Songs Screen](/screenshots/songs-screen.png?raw=true "Songs Screen")
 
 ## Todos
+- [ ] Move selected folders to settings page
+- [ ] Optimize file reading using web worker
+- [ ] Notify UI on errors like invalid file formats or files currently being processed.
+- [ ] Add albums to artists page
+- [ ] Link to artist page when their name is clicked
+- [ ] Link to album page when it's name is clicked
 - [ ] Add playlists functionality
 - [ ] Clear all media when app reloads
 - [ ] Clicking on left navigation should close detail pages or nowplaying
-- [ ] Notify UI on errors like invalid file formats.
 - [ ] Fix error when viewing playlists on app load
 - [ ] Add automatically genereted playlist of recents with up to 20 songs
 - [ ] Add spotify integration for suggestions and trending music

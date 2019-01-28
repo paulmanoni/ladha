@@ -89,6 +89,25 @@
 
   <script>
       const {ipcRenderer} = require('electron');
+      const path = require('path');
+
+      ipcRenderer.on("fetch-tags", function(e, fl, albumArt){
+        const worker_path = path.join(__dirname, 'assets/tags_worker.js');
+        console.log("Worker called!", worker_path);
+
+        var worker = new Worker(worker_path);
+        worker.postMessage({file: fl, albumArt : albumArt});
+
+        worker.addEventListener('message', function(e){
+          console.log("Worker's back!");
+          ipcRenderer.send("tags-fetched", e.data);
+        });
+      });
+
+      ipcRenderer.on("log-message", function(e, message){
+        console.log(message);
+      });
+
       function appAction(action){
         ipcRenderer.send("app-action", action);
       }

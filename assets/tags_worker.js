@@ -1,5 +1,4 @@
 var id3 = require('node-id3');
-var mp3Duration = require('mp3-duration');
 
 self.onmessage = function(e){
 	var file = e.data.file;
@@ -10,7 +9,7 @@ self.onmessage = function(e){
     song.title = file.name || "Unknown song";
     song.artwork = "";
     song.duration = 0;
-    
+
     if(albumArt && albumArt != undefined && albumArt.large && albumArt.large.type){
         song.artwork = {url: albumArt.large.path, mime: albumArt.large.type};
     }
@@ -19,7 +18,7 @@ self.onmessage = function(e){
 
     if(tags){
         // console.log(tags);
-        
+
         song.title = tags.title || song.title;
         song.artist = tags.artist || "Unknown Artist";
         song.album = tags.album || "Unknown Album";
@@ -39,7 +38,7 @@ self.onmessage = function(e){
                 song.artwork = {url: url, mime: pic.mime};
             }
         }
-    }    
+    }
 
     postMessage({song: song});
 

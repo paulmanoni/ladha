@@ -143,6 +143,8 @@ function createWindow() {
   ipcMain.on("add-song-to-playlist", function(e, playlist, song){
     addSongToPlaylist(playlist, song)
   })
+
+  ipcMain.on("tags-fetched", onTagsFetched);
 }
 
 try {
@@ -282,91 +284,92 @@ function getTags(full_path, file_inner, covers){
       path: full_path
   };
 
-  // var worker = newTagsWorker;
-  var worker = tagsWorker;
-  worker.postMessage({file: fl, albumArt : albumArt});
-
-  worker.addEventListener('message', function(e){
-      var song = e.data.song;
-      var err = e.data.err;
-      if(song){
-        var matching_songs = music_index["songs"].filter(f => {
-          if(song.title && song.title.toLowerCase() != "unknown"
-            && f.title && song.title.toLowerCase() != "unknown"
-            && f.title === song.title){
-              if(f.artist && f.artist.toLowerCase() != "unknown"
-                && song.artist && song.artist.toLowerCase() != "unknown"
-                && f.artist === song.artist)
-                return true;
-          }
-
-          return false;
-        });
-
-        if(matching_songs.length > 0){
-          return;
-        }
-
-        music_index["songs"].push(song);
-        saveIndex(music_index);
-        win.webContents.send("song-fetched", song);
-
-        if(song && song.artwork && albumArt)
-          albumArt.large = {
-            path: song.artwork,
-            type: song.imageMime
-          }
-
-        if(song.album){
-          var albums = music_index["albums"].filter(a => a.title === song.album);
-
-          if(!albums.length){
-            music_index["albums"].push({title: song.album, artist: song.artist, year: song.year, artwork: song.artwork || ""});
-            saveIndex(music_index);
-            win.webContents.send("album-fetched", {title: song.album, art: song.artwork || ""});
-          }
-        }
-
-        if(song.artist){
-          var artists = music_index["artists"].filter(a => a.name === song.artist);
-          var idx = music_index["artists"].length;
-
-          if(!artists.length){
-            music_index["artists"].push({name: song.artist, image: ""});
-            saveIndex(music_index);
-
-            getArtistImage(song.artist)
-            .then(artist_image => {
-              console.log("Image was fetched!!!");
-
-              var idx2 = music_index["artists"].findIndex(a => a.name === song.artist);
-              console.log("Index 1: " + idx, "Index 2: " + idx2);
-              console.log(music_index["artists"][idx]);
-
-              music_index["artists"][idx] = {name: song.artist, image: artist_image};
-              saveIndex(music_index);
-              win.webContents.send("artist-fetched", {name: song.artist, image: artist_image});
-            })
-            .catch( err => {
-              console.log("Error: " + err);
-              win.webContents.send("artist-fetched", {name: song.artist, image: ""});
-            });
-          }
-        }
-      }
-
-      if(err){
-          console.log("Error!");
-          console.log(err);
-          console.log("***Error mwisho***\n");
-      }
-  });
+  win.webContents.send('fetch-tags', fl, albumArt);
 }
 
 const GOOGLE_API_KEY = "AIzaSyA9QxtaVAxgyUp7I7BE9sc16qS02LX6Q7E"
 const CSE_ID = "013275443262624560269:s160zfrdiwq"
 
 const imageApi = new GoogleImages(CSE_ID, GOOGLE_API_KEY);
+
+function onTagsFetched(e, data){
+  console.log("Result from Worker!", data);
+  var song = data.song;
+  var albumArt = data.albumArt;
+  var err = data.err;
+  if(song){
+    var matching_songs = music_index["songs"].filter(f => {
+      if(song.title && song.title.toLowerCase() != "unknown"
+        && f.title && song.title.toLowerCase() != "unknown"
+        && f.title === song.title){
+          if(f.artist && f.artist.toLowerCase() != "unknown"
+            && song.artist && song.artist.toLowerCase() != "unknown"
+            && f.artist === song.artist)
+            return true;
+      }
+
+      return false;
+    });
+
+    if(matching_songs.length > 0){
+      return;
+    }
+
+    music_index["songs"].push(song);
+    saveIndex(music_index);
+    win.webContents.send("song-fetched", song);
+
+    if(song && song.artwork && albumArt)
+      albumArt.large = {
+        path: song.artwork,
+        type: song.imageMime
+      }
+
+    if(song.album){
+      var albums = music_index["albums"].filter(a => a.title === song.album);
+
+      if(!albums.length){
+        const album = {title: song.album, artist: song.artist, year: song.year, artwork: song.artwork || "", art: song.artwork || ""}
+        music_index["albums"].push(album);
+        saveIndex(music_index);
+        win.webContents.send("album-fetched", album);
+      }
+    }
+
+    if(song.artist){
+      var artists = music_index["artists"].filter(a => a.name === song.artist);
+      var idx = music_index["artists"].length;
+
+      if(!artists.length){
+        music_index["artists"].push({name: song.artist, image: ""});
+        saveIndex(music_index);
+
+        getArtistImage(song.artist)
+        .then(artist_image => {
+          console.log("Image was fetched!!!");
+
+          var idx2 = music_index["artists"].findIndex(a => a.name === song.artist);
+          console.log("Index 1: " + idx, "Index 2: " + idx2);
+          console.log(music_index["artists"][idx]);
+
+          music_index["artists"][idx] = {name: song.artist, image: artist_image};
+          saveIndex(music_index);
+          win.webContents.send("artist-fetched", {name: song.artist, image: artist_image});
+        })
+        .catch( err => {
+          console.log("Error: " + err);
+          win.webContents.send("artist-fetched", {name: song.artist, image: ""});
+        });
+      }
+    }
+  }
+
+  if(err){
+      console.log("Error!");
+      console.log(err);
+      console.log("***Error mwisho***\n");
+  }
+}
 
 function getArtistImage(name){
   var promise = new Promise((resolve, reject) => {
