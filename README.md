@@ -38,6 +38,7 @@ npm install
 ![Songs Screen](/screenshots/songs-screen.png?raw=true "Songs Screen")
 
 ## Todos
+- [ ] Add appwide search
 - [ ] Move selected folders to settings page
 - [ ] Make selected folders work properly by also removing albums, artists and songs
 - [ ] Optimize file reading using web worker
