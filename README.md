@@ -55,3 +55,4 @@ npm install
 - [ ] Add mini player functionality
 - [ ] Reduce size of main.ts by creating sub module for distinct features such as preferences management
 - [ ] Make outer shell, app icons and fonts dynamic based on platform
+- [ ] Allow phone connected to same wifi to work as remote
